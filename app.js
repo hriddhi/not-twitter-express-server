@@ -6,10 +6,12 @@ var logger = require('morgan');
 const http = require('http');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
+var session = require('express-session');
+var FileStore = require('session-file-store')(session);
 
 const mongoose = require('mongoose');
 const url = 'mongodb://localhost:27017/notTwitter';
-const connect = mongoose.connect(url);
+const connect = mongoose.connect(url, { useUnifiedTopology: true, useNewUrlParser: true });
 
 connect.then((db) => {
   console.log('Connected successfully to the server');
@@ -35,12 +37,20 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser('12345-67890-12345-67890'));
+//app.use(cookieParser('12345-67890-12345-67890'));
+
+app.use(session({
+  name: 'session-id',
+  secret: '12345-67890-12345-67890',
+  saveUninitialized: false,
+  resave: false,
+  store: new FileStore()
+}));
 
 app.use((req, res, next) => {
-  console.log(req.signedCookies);
+  console.log(req.session);
 
-  if(!req.signedCookies.user){
+  if(!req.session.user){
     var authHeader = req.headers.authorization;
     if(!authHeader){
       var err = new Error('You are not authenticated');
@@ -54,7 +64,7 @@ app.use((req, res, next) => {
     var password = auth[1];
 
     if(username === 'admin' && password === 'password'){
-      res.cookie('user', 'admin', {signed: true});
+      req.session.user = 'admin';
       next();
     } else {
       var err = new Error('You are not authenticated');
@@ -63,7 +73,7 @@ app.use((req, res, next) => {
       return next(err);
     }
   } else {
-    if(req.signedCookies.user == 'admin'){
+    if(req.session.user == 'admin'){
       next();
     } else {
       var err = new Error('You are not authenticated');
