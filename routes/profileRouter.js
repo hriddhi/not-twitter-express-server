@@ -6,11 +6,6 @@ const profileRouter = express.Router();
 profileRouter.use(bodyParser.json());
 
 profileRouter.route('/')
-.all((req, res, next) => {
-    res.statusCode = 200;
-    res.setHeader('Content-Type','text/plain');
-    next();
-})  
 .get((req, res, next) => {
     res.end('Retrieves profile details and all tweets and replies');
 })  

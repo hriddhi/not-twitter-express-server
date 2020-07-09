@@ -1,24 +1,34 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 const homeRouter = express.Router();
-
 homeRouter.use(bodyParser.json());
 
+const Posts = require('../models/posts');
+
 homeRouter.route('/')
-.all((req, res, next) => {
-    res.statusCode = 200;
-    res.setHeader('Content-Type','text/plain');
-    next();
-})  
 .get((req, res, next) => {
-    res.end('Retrieves all the post and shows then in the homepage');
+    Posts.find({})
+    .then((post) => {
+        res.statusCode = 200;
+        res.setHeader('Content-type','application/json');
+        res.json(post);
+    }, (err) => next(err))
+    .catch((err) => next(err));
 })  
 .post((req, res, next) => {
-    res.end("Adding post: " + req.body.post + "\nAdding Comment: " + req.body.comment);
+    Posts.create(req.body)
+    .then((post) => {
+        console.log("Post created ", post);
+        res.statusCode = 200;
+        res.setHeader('Content-type','application/json');
+        res.json(post);
+    }, (err) => next(err))
+    .catch((err) => next(err));
 })  
 .put((req, res, next) => {
-    res.end("Editing Comment: " + req.body.comment);
+    res.end("Editing Posts: " + req.body.comment);
 })
 .delete((req, res, next) => {
     res.end("Delete operation not allowed on /home");
