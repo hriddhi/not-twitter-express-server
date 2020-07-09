@@ -12,7 +12,7 @@ profileRouter.route('/')
     next();
 })  
 .get((req, res, next) => {
-    res.end('Retrieves all the post and shows then in the homepage');
+    res.end('Retrieves profile details and all tweets and replies');
 })  
 .post((req, res, next) => {
     res.end("Adding post: " + req.body.post + "\nAdding Comment: " + req.body.comment);
