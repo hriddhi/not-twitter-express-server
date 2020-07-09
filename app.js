@@ -8,6 +8,8 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 var session = require('express-session');
 var FileStore = require('session-file-store')(session);
+var passport = require('passport');
+var authenticate = require('./authenticate');
 
 const mongoose = require('mongoose');
 const url = 'mongodb://localhost:27017/notTwitter';
@@ -49,26 +51,34 @@ app.use(session({
   store: new FileStore()
 }));
 
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use('/signup', signupRouter);
 app.use('/login', loginRouter);
 
-var Users = require('./models/users');
+app.use('/logout', (req, res) => {
+  if (req.session) {
+    req.session.destroy();
+    res.clearCookie('session-id');
+    res.setHeader('Content-type','text/plain');
+    res.end('Successfully logged out');
+  }
+  else {
+    var err = new Error('You are not logged in!');
+    err.status = 403;
+    next(err);
+  }
+});
 
 app.use((req, res, next) => {
-  console.log(req.session);
 
-  if(!req.session.user){
+  if(!req.user){
     var err = new Error('You are not authenticated');
     err.status = 403;
     return next(err);
   } else {
-    if (req.session.user) {
-      next();
-    } else {
-      var err = new Error('You are not authenticated!');
-      err.status = 403;
-      return next(err);
-    }    
+    next();
   }
 });
 
