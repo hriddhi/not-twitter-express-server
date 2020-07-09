@@ -2,12 +2,16 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
-    name: {
+    username: {
         type: String,
         maxlength: 50,
         required: true
     },
-    username: {
+    password: {
+        type: String,
+        required: true
+    },
+    name: {
         type: String,
         maxlength: 50,
         required: true
@@ -18,7 +22,7 @@ const userSchema = new Schema({
     },
     location: {
         type: String,
-        required: true
+        default: null
     },
     dob: {
         type: String,
