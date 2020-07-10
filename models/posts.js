@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const commentSchema = new Schema({
     userId: {
-        type: String,
+        type: mongoose.Types.ObjectId,
         required: true
     },
     comment: {
@@ -17,7 +17,7 @@ const commentSchema = new Schema({
 
 const postSchema = new Schema({
     userId: {
-        type: String,
+        type: mongoose.Types.ObjectId,
         required: true
     },
     tweet: {

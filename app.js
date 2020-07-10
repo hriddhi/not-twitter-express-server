@@ -73,7 +73,7 @@ app.use('/logout', (req, res) => {
 
 app.use((req, res, next) => {
 
-  if(!req.user){
+  if(!req.session){
     var err = new Error('You are not authenticated');
     err.status = 403;
     return next(err);
