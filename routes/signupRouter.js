@@ -8,7 +8,7 @@ var router = express.Router();
 router.use(bodyParser.json());
 
 router.post('/', (req, res, next) => {
-
+    console.log(req.body);
     User.register(new User({
         username: req.body.username,
         name: req.body.name,

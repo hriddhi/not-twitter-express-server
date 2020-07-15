@@ -10,9 +10,11 @@ var session = require('express-session');
 var FileStore = require('session-file-store')(session);
 var passport = require('passport');
 var authenticate = require('./authenticate');
+var config = require('./config');
+var cors = require('cors');
 
 const mongoose = require('mongoose');
-const url = 'mongodb://localhost:27017/notTwitter';
+const url = config.mongoUrl;
 const connect = mongoose.connect(url, { useUnifiedTopology: true, useNewUrlParser: true });
 
 connect.then((db) => {
@@ -33,6 +35,8 @@ var app = express();
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 
+app.use(cors());
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -43,16 +47,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 //app.use(cookieParser('12345-67890-12345-67890'));
 
-app.use(session({
+/*app.use(session({
   name: 'session-id',
   secret: '12345-67890-12345-67890',
   saveUninitialized: false,
   resave: false,
   store: new FileStore()
-}));
+})); */
 
 app.use(passport.initialize());
-app.use(passport.session());
+//app.use(passport.session());
 
 app.use('/signup', signupRouter);
 app.use('/login', loginRouter);
@@ -71,16 +75,16 @@ app.use('/logout', (req, res) => {
   }
 });
 
-app.use((req, res, next) => {
+// app.use((req, res, next) => {
 
-  if(!req.session){
-    var err = new Error('You are not authenticated');
-    err.status = 403;
-    return next(err);
-  } else {
-    next();
-  }
-});
+//   if(!req.session){
+//     var err = new Error('You are not authenticated');
+//     err.status = 403;
+//     return next(err);
+//   } else {
+//     next();
+//   }
+// });
 
 app.use(express.static(path.join(__dirname, 'public')));
 

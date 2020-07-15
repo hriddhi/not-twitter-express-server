@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const authenticate = require('../authenticate');
 
 const homeRouter = express.Router();
 homeRouter.use(bodyParser.json());
@@ -8,7 +9,7 @@ homeRouter.use(bodyParser.json());
 const Posts = require('../models/posts');
 
 homeRouter.route('/')
-.get((req, res, next) => {
+.get(authenticate.verifyUser, (req, res, next) => {
     Posts.find({})
     .then((post) => {
         res.statusCode = 200;
@@ -17,7 +18,7 @@ homeRouter.route('/')
     }, (err) => next(err))
     .catch((err) => next(err));
 })  
-.post((req, res, next) => {
+.post(authenticate.verifyUser, (req, res, next) => {
     if(req.body.action === 'post'){
         Posts.create({
             tweet: req.body.tweet,
@@ -57,10 +58,10 @@ homeRouter.route('/')
         .catch((err) => next(err));
     }
 })  
-.put((req, res, next) => {
+.put(authenticate.verifyUser, (req, res, next) => {
     res.end("Editing Posts: " + req.body.comment);
 })
-.delete((req, res, next) => {
+.delete(authenticate.verifyUser, (req, res, next) => {
     res.end("Delete operation not allowed on /home");
 });
     
