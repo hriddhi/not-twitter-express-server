@@ -7,8 +7,9 @@ const homeRouter = express.Router();
 homeRouter.use(bodyParser.json());
 
 const Posts = require('../models/posts');
+const Users = require('../models/users');
 
-homeRouter.route('/')
+homeRouter.route('/post')
 .get(authenticate.verifyUser, (req, res, next) => {
     Posts.find({})
     .then((post) => {
@@ -19,20 +20,19 @@ homeRouter.route('/')
     .catch((err) => next(err));
 })  
 .post(authenticate.verifyUser, (req, res, next) => {
-    if(req.body.action === 'post'){
-        Posts.create({
-            tweet: req.body.tweet,
-            userId: mongoose.Types.ObjectId(req.user._id)
-        })
-        .then((post) => {
-            console.log("Post created ", post);
-            res.statusCode = 200;
-            res.setHeader('Content-type','application/json');
-            res.json(post);
-        }, (err) => next(err))
-        .catch((err) => next(err));
-    } else if(req.body.action === 'comment'){
-        console.log(req.body);
+    Posts.create({
+        tweet: req.body.tweet,
+        userId: mongoose.Types.ObjectId(req.user._id)
+    })
+    .then((post) => {
+        console.log("Post Created ", post);
+        res.statusCode = 200;
+        res.setHeader('Content-type','application/json');
+        res.json(post);
+    }, (err) => next(err))
+    .catch((err) => next(err));
+    
+        /* console.log(req.body);
         Posts.findById(req.body.postId)
         .then((post) => {
             if(post != null){
@@ -55,8 +55,8 @@ homeRouter.route('/')
                 return next(err);
             }
         }, (err) => next(err))
-        .catch((err) => next(err));
-    }
+        .catch((err) => next(err)); */
+    
 })  
 .put(authenticate.verifyUser, (req, res, next) => {
     res.end("Editing Posts: " + req.body.comment);
@@ -64,5 +64,7 @@ homeRouter.route('/')
 .delete(authenticate.verifyUser, (req, res, next) => {
     res.end("Delete operation not allowed on /home");
 });
+
+
     
 module.exports = homeRouter;
