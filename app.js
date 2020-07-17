@@ -30,6 +30,7 @@ var homeRouter = require('./routes/homeRouter');
 var profileRouter = require('./routes/profileRouter');
 var signupRouter = require('./routes/signupRouter');
 var loginRouter = require('./routes/loginRouter');
+var postRouter = require('./routes/posts');
 
 var app = express();
 app.use(morgan('dev'));
@@ -89,7 +90,7 @@ app.use('/logout', (req, res) => {
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-//app.use('/users', usersRouter);
+app.use('/post', postRouter);
 app.use('/home', homeRouter);
 app.use('/profile', profileRouter);
 

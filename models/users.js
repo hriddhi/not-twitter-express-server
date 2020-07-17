@@ -3,6 +3,11 @@ const passportLocalMongoose = require('passport-local-mongoose');
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
+    email: {
+        type: String,
+        maxlength: 50,
+        default: ''
+    },
     name: {
         type: String,
         maxlength: 50,
@@ -24,32 +29,17 @@ const userSchema = new Schema({
         type: String,
         default: null
     },
-    tweet_id: {
-        type: [
-            new Schema({
-                tweet_id: {
-                    type: String,
-                }
-            })
-        ],
+    following: {
+        type: [mongoose.Types.ObjectId],
     },
-    commented_id: {
-        type: [
-            new Schema({
-                tweet_id: {
-                    type: String,
-                }
-            })
-        ],
+    followers: {
+        type: [mongoose.Types.ObjectId],
+    },
+    tweet_id: {
+        type: [mongoose.Types.ObjectId],
     },
     liked_id: {
-        type: [
-            new Schema({
-                tweet_id: {
-                    type: String,
-                }
-            })
-        ],
+        type: [mongoose.Types.ObjectId],
     }
 });
 

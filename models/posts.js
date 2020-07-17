@@ -1,15 +1,12 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const commentSchema = new Schema({
+const likeSchema = new Schema({
     userId: {
-        type: mongoose.Types.ObjectId,
-        required: true
+        type: mongoose.Types.ObjectId
     },
-    comment: {
-        type: String,
-        maxlength: 256,
-        required: true
+    username: {
+        type: String
     }
 }, {
     timestamps: true
@@ -20,12 +17,21 @@ const postSchema = new Schema({
         type: mongoose.Types.ObjectId,
         required: true
     },
+    user: {
+        type: mongoose.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
+    repliedTo: {
+        type: mongoose.Types.ObjectId,
+        default: null
+    },
     tweet: {
         type: String,
         maxlength: 256,
         required: true
     },
-    comments: [commentSchema]
+    like : [likeSchema]
     }, {
         timestamps: true
 });
