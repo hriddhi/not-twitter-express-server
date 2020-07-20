@@ -23,7 +23,7 @@ const postSchema = new Schema({
         required: true
     },
     repliedTo: {
-        type: mongoose.Types.ObjectId,
+        type: String,
         default: null
     },
     tweet: {

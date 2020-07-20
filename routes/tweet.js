@@ -9,30 +9,42 @@ router.use(bodyParser.json());
 const Posts = require('../models/posts');
 const Users = require('../models/users');
 
-router.route('/')
+router.route('/:postId')
 .get(authenticate.verifyUser, (req, res, next) => {
-    Users.findById(req.user._id)
-    .then((user) => {
-        user.following = user.following.push(req.user._id);
-        Posts.find({'userId': user.following})
-        .sort({createdAt: -1})
+    console.log(req.params.postId);
+    Posts.findOne({_id: req.params.postId.split('$')[0]})
+    .populate('user', {username: 1, name: 1, profile_picture: 1})
+    .then((post) => {
+        Posts.find({repliedTo: post._id+'$'+post.user.username})
         .populate('user', {username: 1, name: 1, profile_picture: 1})
-        .then((post) => {
+        .then((comments) => {
             res.statusCode = 200;
             res.setHeader('Content-type','application/json');
-            res.json(post);
-        })
-    }, (err) => next(err))
-    .catch((err) => next(err));
-})  
+            res.json({post: {
+                _id: post._id,
+                createdAt: post.createdAt,
+                like: post.like,
+                repliedTo: post.repliedTo,
+                tweet: post.tweet,
+                user: post.user,
+                userId: post.userId
+            }, comment: comments, like_count: post.like.length});
+        }, (err) => next(err))
+        .catch((err) => next(err))
+    })
+    .catch((err) => next(err))
+});
+
+router.route('/comment/:postId')
 .post(authenticate.verifyUser, (req, res, next) => {
+    console.log(req.body);
     Posts.create({
-        tweet: req.body.tweet,
+        repliedTo: req.params.postId,
+        tweet: req.body.comment,
         userId: mongoose.Types.ObjectId(req.user._id),
         user: mongoose.Types.ObjectId(req.user._id)
     })
-    .then((post) => {
-        //console.log(post);
+    .then((post) =>{
         Posts.findById(post._id)
         .populate('user', {username: 1, name: 1, profile_picture: 1})
         .then((post) => {
@@ -46,15 +58,6 @@ router.route('/')
 });
 
 router.route('/like/:postId')
-.get(authenticate.verifyUser, (req, res, next) => {
-    Posts.findById(req.params.postId)
-    .then((post) => {
-        res.statusCode = 200;
-        res.setHeader('Content-type','application/json');
-        res.json(post.like);
-    }, (err) => next(err))
-    .catch((err) => next(err));
-})
 .post(authenticate.verifyUser, (req, res, next) => {
     Posts.findById(req.params.postId)
     .then((post) => {
@@ -95,37 +98,5 @@ router.route('/like/:postId')
     }, (err) => next(err))
     .catch((err) => next(err));
 })
-
-router.route('/comment/:postId')
-.get(authenticate.verifyUser, (req, res, next) => {
-    Posts.find({repliedTo: req.params.postId})
-    .populate('user', {username: 1, name: 1, profile_picture: 1})
-    .then((post) => {
-        res.statusCode = 200;
-        res.setHeader('Content-type','application/json');
-        res.json(post);
-    }, (err) => next(err))
-    .catch((err) => next(err))
-})
-.post(authenticate.verifyUser, (req, res, next) => {
-    console.log(req.body);
-    Posts.create({
-        repliedTo: req.params.postId + '$' + req.body.username,
-        tweet: req.body.comment,
-        userId: mongoose.Types.ObjectId(req.user._id),
-        user: mongoose.Types.ObjectId(req.user._id)
-    })
-    .then((post) =>{
-        Posts.findById(post._id)
-        .populate('user', {username: 1, name: 1, profile_picture: 1})
-        .then((post) => {
-            console.log(post);
-            res.statusCode = 200;
-            res.setHeader('Content-type','application/json');
-            res.json(post);
-        }, (err) => next(err))
-    }, (err) => next(err))
-    .catch((err) => next(err))
-});
     
 module.exports = router;

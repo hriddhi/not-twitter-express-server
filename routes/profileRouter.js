@@ -25,16 +25,40 @@ profileRouter.route('/:username')
         })
     }, (err) => next(err))
     .catch((err) => next(err));
-})  
-.post(authenticate.verifyUser, (req, res, next) => {
-    
-})  
-.put(authenticate.verifyUser, (req, res, next) => {
-    res.end("Editing Posts: " + req.body.comment);
-})
-.delete(authenticate.verifyUser, (req, res, next) => {
-    res.end("Delete operation not allowed on /home");
 });
 
+profileRouter.route('/replies/:username')
+.get(authenticate.verifyUser, (req, res, next) => {
+    Users.findOne({username: req.params.username})
+    .then((user) => {
+        console.log(user._id);
+        Posts.find({userId: user._id, repliedTo: {$ne: null}})
+        .then((post) => {
+            res.statusCode = 200;
+            res.setHeader('Content-type','application/json');
+            res.json({
+                replies: post
+            });
+        })
+    }, (err) => next(err))
+    .catch((err) => next(err));
+});
+
+profileRouter.route('/likes/:username')
+.get(authenticate.verifyUser, (req, res, next) => {
+    Users.findOne({username: req.params.username})
+    .then((user) => {
+        console.log(user._id);
+        Posts.find({_id: user.liked_id})
+        .then((post) => {
+            res.statusCode = 200;
+            res.setHeader('Content-type','application/json');
+            res.json({
+                likes: post
+            });
+        })
+    }, (err) => next(err))
+    .catch((err) => next(err));
+});
     
 module.exports = profileRouter;

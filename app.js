@@ -31,6 +31,7 @@ var profileRouter = require('./routes/profileRouter');
 var signupRouter = require('./routes/signupRouter');
 var loginRouter = require('./routes/loginRouter');
 var postRouter = require('./routes/posts');
+var tweetRouter = require('./routes/tweet');
 
 var app = express();
 app.use(morgan('dev'));
@@ -93,6 +94,8 @@ app.use('/', indexRouter);
 app.use('/post', postRouter);
 app.use('/home', homeRouter);
 app.use('/profile', profileRouter);
+app.use('/tweet', tweetRouter);
+app.use('/user', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
