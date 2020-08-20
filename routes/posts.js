@@ -2,12 +2,38 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const authenticate = require('../authenticate');
+const { v4: uuidv4 } = require('uuid');
+var multer = require('multer');
 
 const router = express.Router();
 router.use(bodyParser.json());
 
 const Posts = require('../models/posts');
 const Users = require('../models/users');
+
+const DIR = './public/post/';
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, DIR);
+    },
+    filename: (req, file, cb) => {
+        const fileName = file.originalname.toLowerCase().split(' ').join('-');
+        cb(null, uuidv4() + '-' + fileName);
+    }
+});
+
+var upload = multer({
+    storage: storage,
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg") {
+            cb(null, true);
+        } else {
+            cb(null, false);
+            return cb(new Error('Only .png, .jpg and .jpeg format allowed!'));
+        }
+    }
+});
 
 router.route('/')
 .get(authenticate.verifyUser, (req, res, next) => {
@@ -25,14 +51,27 @@ router.route('/')
     }, (err) => next(err))
     .catch((err) => next(err));
 })  
-.post(authenticate.verifyUser, (req, res, next) => {
-    Posts.create({
-        tweet: req.body.tweet,
-        userId: mongoose.Types.ObjectId(req.user._id),
-        user: mongoose.Types.ObjectId(req.user._id)
-    })
+.post(authenticate.verifyUser, upload.single('image'),  (req, res, next) => {
+    console.log(req.body);
+    const url = req.protocol + '://' + req.get('host');
+    var posts;
+    if(req.file === undefined){
+        posts = {
+            tweet: req.body.tweet,
+            userId: mongoose.Types.ObjectId(req.user._id),
+            user: mongoose.Types.ObjectId(req.user._id),
+            picture: null
+        }
+    } else {
+        posts = {
+            tweet: req.body.tweet,
+            userId: mongoose.Types.ObjectId(req.user._id),
+            user: mongoose.Types.ObjectId(req.user._id),
+            picture: url + '/post/' + req.file.filename
+        }
+    }
+    Posts.create(posts)
     .then((post) => {
-        //console.log(post);
         Posts.findById(post._id)
         .populate('user', {username: 1, name: 1, profile_picture: 1})
         .then((post) => {
@@ -59,7 +98,7 @@ router.route('/like/:postId')
     Posts.findById(req.params.postId)
     .then((post) => {
         console.log(post);
-        if(post.like.find((user) => user.userId.equals(req.user._id) !== undefined)){
+        if(post.like.find((user) => user.userId.equals(req.user._id)) !== undefined){
             post.like.splice(post.like.findIndex((user) => user.userId.equals(req.user._id)), 1);
             post.save()
             .then((post) => {

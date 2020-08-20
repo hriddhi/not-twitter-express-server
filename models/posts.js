@@ -31,6 +31,10 @@ const postSchema = new Schema({
         maxlength: 256,
         required: true
     },
+    picture: {
+        type: String,
+        default: null
+    },
     like : [likeSchema]
     }, {
         timestamps: true

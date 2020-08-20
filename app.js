@@ -58,6 +58,8 @@ app.use(express.urlencoded({ extended: false }));
 })); */
 
 app.use(passport.initialize());
+
+app.use(express.static(path.join(__dirname, 'public')));
 //app.use(passport.session());
 
 app.use('/signup', signupRouter);
@@ -87,8 +89,6 @@ app.use('/logout', (req, res) => {
 //     next();
 //   }
 // });
-
-app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/post', postRouter);

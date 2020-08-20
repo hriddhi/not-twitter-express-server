@@ -60,7 +60,18 @@ router.route('/follows/:follow')
 
 router.route('/find')
 .get(authenticate.verifyUser, (req, res, next) => {
-  Users.find({_id: req.user.following})
+  Users.find({})
+  .select({_id: 1, name: 1, username: 1, profile_picture: 1})
+  .then((users) => {
+    var unique = users.filter((x) => !req.user.following.includes(x._id) && !req.user._id.equals(x._id));
+    console.log(unique);
+    res.statusCode = 200;
+    res.setHeader('Content-type','application/json');
+    res.json(unique);
+  }, (err) => next(err))
+  .catch((err) => next(err));
+
+  /*Users.find({_id: req.user.following})
   .then((user) => {
     console.log(user);
     var all = [];
@@ -70,7 +81,7 @@ router.route('/find')
     console.log(all);
     var unique = [];
     all.forEach(element => {
-      if(!req.user.following.includes(element) && !unique.includes(element)) {
+      if(!req.user.following.includes(element) && !unique.includes(element) && !req.user._id.equals(element)) {
         unique.push(element);
       }
     })
@@ -84,7 +95,7 @@ router.route('/find')
       res.json(users);
     }, (err) => next(err))
   }, (err) => next(err))
-  .catch((err) => next(err));
+  .catch((err) => next(err));*/
 })
 
 module.exports = router;

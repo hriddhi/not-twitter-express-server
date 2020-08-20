@@ -29,6 +29,14 @@ const userSchema = new Schema({
         type: String,
         default: null
     },
+    bio: {
+        type: String,
+        maxlength: 256,
+        default: null
+    },
+    joined: {
+        type: Date,
+    },
     following: {
         type: [mongoose.Types.ObjectId],
     },

@@ -26,6 +26,7 @@ router.route('/:postId')
                 like: post.like,
                 repliedTo: post.repliedTo,
                 tweet: post.tweet,
+                picture: post.picture,
                 user: post.user,
                 userId: post.userId
             }, comment: comments, like_count: post.like.length});
