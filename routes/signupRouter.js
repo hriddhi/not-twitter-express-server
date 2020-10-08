@@ -60,6 +60,7 @@ router.post('/', upload.single('image'), (req, res, next) => {
                     success: true,
                     user: user
                 });
+                res.redirect('/');
             });
         }
     });
