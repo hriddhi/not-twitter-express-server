@@ -53,6 +53,7 @@ router.post('/', upload.single('image'), (req, res, next) => {
         } else {
             passport.authenticate('local')(req, res, () => {
                 console.log(user);
+                res.redirect('/');
                 res.statusCode = 200;
                 res.setHeader('Content-Type','application/json');
                 res.json({
@@ -60,7 +61,7 @@ router.post('/', upload.single('image'), (req, res, next) => {
                     success: true,
                     user: user
                 });
-                res.redirect('/');
+                
             });
         }
     });
